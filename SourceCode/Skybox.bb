@@ -25,7 +25,7 @@ Function sky_CreateSky(filename$,parent%=0)
 	Return sky
 End Function
 
-Function UpdateSky(sky$)
+Function UpdateSky(sky%)
 	PositionEntity sky, EntityX(Camera,True),EntityY(Camera,True),EntityZ(Camera,True), True
 End Function
 
@@ -65,5 +65,4 @@ Data +1,-1,-1,1,1
 Data +1,-1,+1,0,1
 Data -1,-1,+1,0,0
 ;~IDEal Editor Parameters:
-;~F#1#1B
 ;~C#Blitz3D
