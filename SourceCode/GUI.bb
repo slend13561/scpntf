@@ -660,9 +660,10 @@ Function UpdateGUI()
 			Else
 				If isMouseOn And MouseHit1 Then
 					For z% = 0 To MaxItemAmount - 1
-						If Inventory[z] = SelectedItem Then Inventory[z] = Null
+						If Inventory[z] = SelectedItem Then Inventory[z] = Null : Exit
 					Next
 					Inventory[n] = SelectedItem
+					SelectedItem = Null
 				End If
 				
 			EndIf					
@@ -733,7 +734,7 @@ Function UpdateGUI()
 				Else
 					If Inventory[MouseSlot] = Null Then
 						For z% = 0 To MaxItemAmount - 1
-							If Inventory[z] = SelectedItem Then Inventory[z] = Null
+							If Inventory[z] = SelectedItem Then Inventory[z] = Null : Exit
 						Next
 						Inventory[MouseSlot] = SelectedItem
 						SelectedItem = Null
@@ -757,6 +758,7 @@ Function UpdateGUI()
 														If Inventory[ri] = SelectedItem Then
 															Inventory[ri] = Null
 															PlaySound_Strict(PickSFX[SelectedItem\itemtemplate\sound])
+															Exit
 														EndIf
 													Next
 													added = SelectedItem
