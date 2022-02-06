@@ -1,0 +1,21 @@
+v0.2.1
+Thank you everyone for your bug reports! We made an attempt to fix most critical issues.
+
+-Fixed "Catastrophic error" crash at game's launch due to resolution selection.
+-Fixed a bug where some people couldn't press some of the buttons in the main menu or settings.
+-Fixed NPCs in Waves gamemode not following anyone else, but host.
+-Fixed dead NPCs sliding in Waves mode.
+-Fixed NPC crash in Waves when NPC falls down and get's removed by the game.
+-Fixed the issue with team switching in Team Deathmatch mode.
+-Fixed a crash that accured in Light Containment Zone.
+-Fixed SCP-966 not rendering even when Night-Vision Goggles are on.
+-Fixed SCP-173's being too lightspeed.
+-Fixed reserved weapon ammo not saving after dropping the weapon from inventory and picking it back up.
+-Fixed message display for some items.
+-Fixed arrows for page navigation not drawing in the server list.
+-Fixed error message not showing full information about the cause of error.
+-You can no longer equip the gasmask if you already have one.
+-You now press the interact key for getting the drawing from SCP-1048.
+-Slight fix for aim offset of M9 Beretta.
+
+----------------------------------------------------------------------------------
