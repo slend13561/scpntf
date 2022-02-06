@@ -2149,8 +2149,6 @@ Function UpdateGUI()
 			EndIf
 			
 			If MouseHit2 Then
-				EntityAlpha Dark, 0.0
-				
 				IN$ = SelectedItem\itemtemplate\tempname
 				;If IN$ = "paper" Lor IN$ = "scp1025" Lor IN$ = "badge" Lor IN$ = "oldpaper" Then
 				If IN$ = "scp1025" Then

@@ -1472,7 +1472,12 @@ Function MainLoop()
 			End If
 			If SelectedScreen <> Null Then darkA = Max(darkA, 0.5)
 			
-			EntityAlpha(Dark, darkA)	
+			If darkA <> 0.0 Then
+				ShowEntity(Dark)
+				EntityAlpha(Dark, darkA)
+			Else
+				HideEntity(Dark)
+			EndIf	
 		EndIf
 		
 		If LightFlash > 0 Then
@@ -3370,6 +3375,7 @@ Function LoadEntities()
 	EntityOrder Dark, -1002
 	MoveEntity(Dark, 0, 0, 1.0)
 	EntityAlpha Dark, 0.0
+	HideEntity Dark
 	
 	LightTexture = CreateTextureUsingCacheSystem(1024, 1024, 1 + 2)
 	SetBuffer TextureBuffer(LightTexture)
@@ -6507,10 +6513,5 @@ Function UpdateRichPresence()
 	BlitzcordRunCallbacks()
 End Function	
 ;~IDEal Editor Parameters:
-;~F#3#E#12#1B#21#27#2D#31#35#3B#43#49#62#6A#87#9A#A8#BC#127#1BA
-;~F#1C0#1DF#288#28C#297#325#344#38A#39F#40D#576#689#69A#6C6#6EE#6FD#725#74F#768#77B
-;~F#7AB#7C4#82E#8C0#8CA#8E9#92E#97D#985#9A0#B6C#D2B#DE1#F08#F3D#1057#1069#1085#108F#109C
-;~F#10C0#111B#1175#11CB#11DF#121E#1238#123C#125C#1264#128E#13A2#147B#14C1#14C8#14DB#14F5#1508#1536#1541
-;~F#1546#1560#156C#1587#15D9#15E7#15EF#15F7#162C#1635#1646#165D#166B#169C#16D8#16EA#1709#1718#172F#1733
-;~F#1737#173B#1768#1773#179F#17B3#17B8#17D6#180D#1825#1835#1845#1861#1893
+;~F#3#E#12#1B#21#27#2D#31#35#3B#43#49#62#6A#87#9A#A8#BC#158D
 ;~C#Blitz3D
