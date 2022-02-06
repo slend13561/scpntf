@@ -461,11 +461,7 @@ Function UpdateGUI()
 		ItemAmount = 0
 		For  n% = 0 To OtherSize - 1
 			isMouseOn% = False
-			If ScaledMouseX() > x And ScaledMouseX() < x + width Then
-				If ScaledMouseY() > y And ScaledMouseY() < y + height Then
-					isMouseOn = True
-				EndIf
-			EndIf
+			If MouseOn(x, y, width, height) Then isMouseOn = True
 			
 			If isMouseOn Then
 				MouseSlot = n
@@ -620,11 +616,7 @@ Function UpdateGUI()
 		ItemAmount = 0
 		For  n% = 0 To MaxItemAmount - 1
 			isMouseOn% = False
-			If ScaledMouseX() > x And ScaledMouseX() < x + width Then
-				If ScaledMouseY() > y And ScaledMouseY() < y + height Then
-					isMouseOn = True
-				End If
-			EndIf
+			If MouseOn(x, y, width, height) Then isMouseOn = True
 			
 			If isMouseOn Then
 				MouseSlot = n
@@ -2607,11 +2599,7 @@ Function DrawGUI()
 		;ItemAmount = 0
 		For  n% = 0 To OtherSize - 1
 			isMouseOn% = False
-			If ScaledMouseX() > x And ScaledMouseX() < x + width Then
-				If ScaledMouseY() > y And ScaledMouseY() < y + height Then
-					isMouseOn = True
-				EndIf
-			EndIf
+			If MouseOn(x, y, width, height) Then isMouseOn = True
 			
 			If isMouseOn Then
 				MouseSlot = n
@@ -2674,11 +2662,7 @@ Function DrawGUI()
 		;ItemAmount = 0
 		For  n% = 0 To MaxItemAmount - 1
 			isMouseOn% = False
-			If ScaledMouseX() > x And ScaledMouseX() < x + width Then
-				If ScaledMouseY() > y And ScaledMouseY() < y + height Then
-					isMouseOn = True
-				EndIf
-			EndIf
+			If MouseOn(x, y, width, height) Then isMouseOn = True
 			
 			If Inventory[n] <> Null Then
 				Color 200, 200, 200
@@ -4537,5 +4521,4 @@ Function MouseOn%(x%, y%, width%, height%)
 End Function
 
 ;~IDEal Editor Parameters:
-;~F#D8C#DAC#F3D#F82
 ;~C#Blitz3D
