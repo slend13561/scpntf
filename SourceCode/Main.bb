@@ -1360,12 +1360,6 @@ Function MainLoop()
 			If NTF_SmallHead Then UpdateSmallHeadMode()
 		EndIf
 		
-		BlurVolume = Min(CurveValue(0.0, BlurVolume, 20.0),0.95)
-		If BlurTimer > 0.0 Then
-			BlurVolume = Max(Min(0.95, BlurTimer / 1000.0), BlurVolume)
-			BlurTimer = Max(BlurTimer - FPSfactor, 0.0)
-		End If
-		
 		If MTF_CameraCheckTimer>0.0 And MTF_CameraCheckTimer<70*90
 			MTF_CameraCheckTimer=MTF_CameraCheckTimer+FPSfactor
 		ElseIf MTF_CameraCheckTimer>=70*90
@@ -1373,8 +1367,15 @@ Function MainLoop()
 		EndIf
 		
 		;[Block]
-		Local darkA# = 0.0
 		If (Not MenuOpen)  Then
+			BlurVolume = Min(CurveValue(0.0, BlurVolume, 20.0),0.95)
+			If BlurTimer > 0.0 Then
+				BlurVolume = Max(Min(0.95, BlurTimer / 1000.0), BlurVolume)
+				BlurTimer = Max(BlurTimer - FPSfactor, 0.0)
+			End If
+			
+			Local darkA# = 0.0
+			
 			If Sanity < 0 Then
 				If RestoreSanity Then Sanity = Min(Sanity + FPSfactor, 0.0)
 				If Sanity < (-200) Then 
@@ -1467,6 +1468,15 @@ Function MainLoop()
 				darkA = Max(darkA, Min(Abs(FallTimer / 400.0), 1.0))				
 			EndIf
 			
+			If LightFlash > 0 Then
+				ShowEntity Light
+				EntityAlpha(Light, Max(Min(LightFlash + Rnd(-0.2, 0.2), 1.0), 0.0))
+				LightFlash = Max(LightFlash - (FPSfactor / 70.0), 0)
+			Else
+				HideEntity Light
+				;EntityAlpha(Light, LightFlash)
+			EndIf
+			
 			If SelectedItem <> Null Then
 				If SelectedItem\itemtemplate\tempname = "navigator" Lor SelectedItem\itemtemplate\tempname = "nav" Then darkA = Max(darkA, 0.5)
 			End If
@@ -1478,15 +1488,6 @@ Function MainLoop()
 			Else
 				HideEntity(Dark)
 			EndIf	
-		EndIf
-		
-		If LightFlash > 0 Then
-			ShowEntity Light
-			EntityAlpha(Light, Max(Min(LightFlash + Rnd(-0.2, 0.2), 1.0), 0.0))
-			LightFlash = Max(LightFlash - (FPSfactor / 70.0), 0)
-		Else
-			HideEntity Light
-			;EntityAlpha(Light, LightFlash)
 		EndIf
 		;[End block]
 		
@@ -6513,5 +6514,5 @@ Function UpdateRichPresence()
 	BlitzcordRunCallbacks()
 End Function	
 ;~IDEal Editor Parameters:
-;~F#3#E#12#1B#21#27#2D#31#35#3B#43#49#62#6A#87#9A#A8#BC#158D
+;~F#3#E#12#1B#21#27#2D#31#35#3B#43#49#62#6A#87#9A#A8#BC#158E
 ;~C#Blitz3D
