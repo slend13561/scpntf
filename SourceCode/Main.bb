@@ -3936,6 +3936,16 @@ Function InitLoadGame()
 	BlinkTimer = BLINKFREQ
 	Stamina = 100
 	
+	Delete Each TempWayPoints
+	Delete Each TempScreens
+	
+	Local tfll.TempFluLight
+	For tfll = Each TempFluLight
+		Delete tfll\position
+		Delete tfll\rotation
+		Delete tfll
+	Next
+	
 	For rt.RoomTemplates = Each RoomTemplates
 		If rt\obj <> 0 Then FreeEntity(rt\obj) : rt\obj = 0
 	Next
@@ -6514,5 +6524,4 @@ Function UpdateRichPresence()
 	BlitzcordRunCallbacks()
 End Function	
 ;~IDEal Editor Parameters:
-;~F#3#E#12#1B#21#27#2D#31#35#3B#43#49#62#6A#87#9A#A8#BC#158E
 ;~C#Blitz3D
