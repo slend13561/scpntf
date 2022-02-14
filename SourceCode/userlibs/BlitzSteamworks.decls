@@ -50,6 +50,7 @@ Steam_JoinLobby(upperID%,lowerID%):"_BS_JoinLobby@8"
 Steam_LeaveLobby():"_BS_LeaveLobby@0"
 Steam_SeekLobbyUpper%():"_BS_SeekLobbyUpper@0"
 Steam_SeekLobbyLower%():"_BS_SeekLobbyLower@0"
+Steam_FlushLobbyID():"_BS_FlushLobbyID@0"
 Steam_GetIPCountry$():"_BS_GetIPCountry@0"
 
 Steam_GetPingLocation$():"_BS_GetLocalPingLocation@0"

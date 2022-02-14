@@ -65,6 +65,7 @@
  AbsPath="\SourceCode\KeyBinds.bb" PrjFolder="" Line="0" Column="0" Tip="0" Visible="False"
  AbsPath="\SourceCode\KeyName.bb" PrjFolder="" Line="0" Column="0" Tip="0" Visible="False"
  AbsPath="\SourceCode\LoadAllSounds.bb" PrjFolder="" Line="0" Column="0" Tip="0" Visible="False"
+ AbsPath="\SourceCode\LoadingScreens.bb" PrjFolder="" Line="0" Column="0" Tip="0" Visible="False"
  AbsPath="\SourceCode\Rooms\Lockroom_1.bb" PrjFolder="\Rooms" Line="0" Column="0" Tip="0" Visible="False"
  AbsPath="\SourceCode\Rooms\Lockroom_2.bb" PrjFolder="\Rooms" Line="0" Column="0" Tip="0" Visible="False"
  AbsPath="\SourceCode\Rooms\Lockroom_3.bb" PrjFolder="\Rooms" Line="0" Column="0" Tip="0" Visible="False"

@@ -1570,14 +1570,24 @@ Function ToggleGuns()
 	Local i%, j%
 	Local case1%, case2%
 	Local GunInInventory%
+	Local KeyPressed%[MaxGunSlots]
+	Local KeyPressedHolster% = KeyHit(KEY_HOLSTERGUN)
+	
+	For i = 0 To MaxGunSlots-1
+		If co\Enabled Then
+			KeyPressed[i] = GetDPadButtonPress()
+		Else
+			KeyPressed[i] = KeyHit(i + 2)
+		EndIf
+	Next
 	
 	If KillTimer >= 0 And CanPlayerUseGuns And FPSfactor > 0.0 And ChatSFXOpened = False And (Not g_I\IronSight) Then
 		For i = 0 To MaxGunSlots-1
 			If co\Enabled Then
 				case1 = -1
-				case2 = GetDPadButtonPress()
+				case2 = KeyPressed[i]
 			Else
-				case1 = KeyHit(i + 2)
+				case1 = KeyPressed[i]
 				case2 = False
 			EndIf
 			
@@ -1597,7 +1607,7 @@ Function ToggleGuns()
 		Next
 		
 		If (Not co\Enabled) Then
-			case1 = KeyHit(KEY_HOLSTERGUN)
+			case1 = KeyPressedHolster
 		EndIf
 		If (case1 = -1 And case2 = 90) Lor (case1 And (Not case2)) Lor FallTimer < 0 Then
 			For g.Guns = Each Guns
@@ -2122,7 +2132,7 @@ Function PlayGunSound(name$,max_amount%=1,sfx%=0,pitchshift%=False,custom%=False
 End Function
 
 Function UpdateIronSight()
-	Local pvt%,g.Guns,hasIronSight%
+	Local pvt%,g.Guns,hasIronSight%,prevIronSight%
 	Local currGun.Guns
 	
 	If IsPlayerSprinting% Then
@@ -2177,10 +2187,18 @@ Function UpdateIronSight()
 		g_I\IronSightAnim = 0
 	EndIf
 	
-	If MouseHit2 Then
-		If SelectedItem = Null Then
-			If (Not g_I\IronSightAnim) Then
-				If hasIronSight Then
+	If opt\HoldToAim Then
+		If (Not g_I\IronSightAnim) And hasIronSight Then
+			prevIronSight = g_I\IronSight
+			g_I\IronSight% = MouseDown2
+			If g_I\IronSight <> prevIronSight Then
+				g_I\IronSightAnim = 2
+			EndIf
+		EndIf
+	Else
+		If MouseHit2 Then
+			If SelectedItem = Null Then
+				If (Not g_I\IronSightAnim) And hasIronSight Then
 					g_I\IronSight% = (Not g_I\IronSight%)
 					g_I\IronSightAnim = 2
 				EndIf

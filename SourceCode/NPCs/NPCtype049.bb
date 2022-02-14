@@ -6,6 +6,7 @@ Const SCP049_ACTIVE = 2
 Const SCP049_KILL = 3
 Const SCP049_CATWALK = 4
 Const SCP049_ROOM2SL = 5
+Const SCP049_STUNNED = 6
 ;[End Block]
 
 Function CreateNPCtype049(n.NPCs)
@@ -23,9 +24,9 @@ Function CreateNPCtype049(n.NPCs)
 	temp = GetINIFloat("DATA\NPCs.ini", "SCP-049", "scale")
 	ScaleEntity n\obj, temp, temp, temp	
 	
-	n\Sound = HorrorSFX[12]
-	
 	n\CanUseElevator = True
+	
+	n\HP = 100
 End Function
 
 Function UpdateNPCtype049(n.NPCs)
@@ -84,7 +85,7 @@ Function UpdateNPCtype049(n.NPCs)
 			Case SCP049_ACTIVE ;being active
 				;[Block]
 				If (dist < PowTwo(HideDistance*2)) And (Not n\Idle) And PlayerInReachableRoom(True) Then
-					n\SoundChn = PlayNPCSound(n, n\Sound, True)
+					n\SoundChn = LoopSound2(HorrorSFX[12], n\SoundChn, Camera, n\Collider)
 					PlayerSeeAble% = MeNPCSeesPlayer(n)
 					If PlayerSeeAble%=True Lor n\State2>0 Then ;Player is visible for 049's sight - attacking
 						GiveAchievement(Achv049)
@@ -93,7 +94,7 @@ Function UpdateNPCtype049(n.NPCs)
 						If n\PrevState <= 1 And ChannelPlaying(n\SoundChn2)=False
 							If n\Sound2 <> 0 Then FreeSound_Strict(n\Sound2)
 							n\Sound2 = LoadSound_Strict("SFX\SCP\049\Spotted"+Rand(1,7)+".ogg")
-							n\SoundChn2 = PlayNPCSound(n,n\Sound2,True)
+							n\SoundChn2 = PlaySound2(n\Sound2,Camera,n\Collider)
 							n\PrevState = 2
 						EndIf
 						n\PathStatus = 0
@@ -154,7 +155,7 @@ Function UpdateNPCtype049(n.NPCs)
 									PlaySound_Strict HorrorSFX[13]
 									If n\Sound2 <> 0 Then FreeSound_Strict(n\Sound2)
 									n\Sound2 = LoadSound_Strict("SFX\SCP\049\Kidnap"+Rand(1,2)+".ogg")
-									n\SoundChn2 = PlayNPCSound(n,n\Sound2,True)
+									n\SoundChn2 = PlaySound2(n\Sound2,Camera,n\Collider)
 									n\State = 3
 									KillAnim = 0
 								EndIf										
@@ -240,7 +241,7 @@ Function UpdateNPCtype049(n.NPCs)
 									Else
 										n\Sound2 = LoadSound_Strict("SFX\SCP\049\Searching"+Rand(1,6)+".ogg")
 									EndIf
-									n\SoundChn2 = PlayNPCSound(n,n\Sound2,True)
+									n\SoundChn2 = PlaySound2(n\Sound2,Camera,n\Collider)
 									n\PrevState = 1
 								EndIf
 								
@@ -504,6 +505,17 @@ Function UpdateNPCtype049(n.NPCs)
 					UpdateSoundOrigin(n\SoundChn2,Camera,n\obj)
 				EndIf
 				;[End Block]
+			Case SCP049_STUNNED ;Stunned
+				;[Block]
+				If n\HP > -500 Then
+					AnimateNPC(n, 610, 537, -1.4, False)
+					If n\Frame = 537 Then
+						n\State = SCP049_LOOKING
+					EndIf
+				Else
+					AnimateNPC(n, 537, 610, 1.4, False)
+				EndIf
+				;[End Block]	
 		End Select
 	EndIf
 	
@@ -512,9 +524,10 @@ Function UpdateNPCtype049(n.NPCs)
 	RotateEntity n\obj, 0, EntityYaw(n\Collider), 0
 	
 	n\LastSeen = Max(n\LastSeen-FPSfactor,0)
-	
 	n\State2 = Max(n\State2-FPSfactor,0)
+	n\HP = Min(n\HP+FPSfactor*0.5,100)
+	
 End Function
 ;~IDEal Editor Parameters:
-;~F#4A#FB#185#19A
+;~F#1#B#1F
 ;~C#Blitz3D

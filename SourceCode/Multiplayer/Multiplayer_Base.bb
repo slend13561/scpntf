@@ -20,7 +20,7 @@ Const PACKET_KEY = 12
 
 ;Server message IDs for the server list
 Const SERVER_MSG_NONE = 0
-Const SERVER_MSG_DCONNECT = 1
+Const SERVER_MSG_CONNECT = 1
 Const SERVER_MSG_OFFLINE = 2
 Const SERVER_MSG_RETRIES = 3
 Const SERVER_MSG_PASSWORD = 4
@@ -94,6 +94,8 @@ Type MultiplayerInstance
 	Field ChatOpen%
 	Field ServerListUpdateTimer#
 	Field ConnectionIcons%
+	Field ConnectionTime#
+	Field ConnectionRetries%
 End Type
 
 ;Unused Field variables in the MultiplayerInstance Type
@@ -377,76 +379,10 @@ Function Connect(UserIDUpper%, UserIDLower%)
 	Local retries% = 0
 	Local x% = 640*MenuScale, y% = 376*MenuScale
 	Steam_JoinLobby(UserIDUpper%, UserIDLower%)
-	;mp_I\Server% = CreateUDPStream() ;Create UDP Stream with any free port
-	;WriteByte mp_I\Server,PACKET_LOAD
-	;WriteLine mp_I\Server,mp_I\PlayerName
-	;CountHostIPs(Addr)
-	;SendUDPMsg(mp_I\Server,HostIP(1),mp_I\ConnectPort)
-	;mp_I\Stream = RecvUDPMsg(mp_I\Server)
-	;Steam_PushInt(PACKET_HEADER_INT)
-	Steam_PushByte(PACKET_LOAD)
-	WriteShortStringAsBytes("")
-	Steam_PushString(VersionNumber)
-	Steam_PushString(mp_O\PlayerName)
-	Steam_SendPacketToUser(UserIDUpper, UserIDLower)
-	getconn = Steam_LoadPacket()
-	While Not getconn ;mp_I\Stream
-		;mp_I\Stream = RecvUDPMsg(mp_I\Server)
-		getconn = Steam_LoadPacket()
-;		If getconn And Steam_PullInt() <> PACKET_HEADER_INT Then
-;			;A garbage packet found, skip it
-;			getconn = False
-;		EndIf
-		MouseHit1 = MouseHit(1)
-		DrawFrame(x,y,400*MenuScale,200*MenuScale)
-		Color 255,255,255
-		SetFont fo\Font[Font_Default]
-		Text x+10*MenuScale,y+10*MenuScale,GetLocalStringR("Serverlist","waiting_seconds",Str(Int((MilliSecs()-(waitForCo-10000))/1000)))
-		If retries > 0 Then
-			Text x+10*MenuScale,y+50*MenuScale,GetLocalStringR("Serverlist","no_connection_retries",Str(retries))
-		EndIf
-		If DrawButton(x+150*MenuScale,y+160*MenuScale,100*MenuScale,30*MenuScale,GetLocalString("Menu", "cancel"),False,False,True) Lor retries >= MAX_RETRIES Then
-			Disconnect()
-			;disconnected = True
-			DeleteMenuGadgets()
-			Steam_LeaveLobby()
-			Steam_CloseConnection(UserIDUpper, UserIDLower)
-			If (Not MainMenuOpen) Then
-				Delete Each Menu3DInstance
-				MainMenuOpen = True
-				InitConsole(2)
-				Load3DMenu()
-			EndIf
-			If retries >= MAX_RETRIES Then
-				mp_I\ServerMSG = SERVER_MSG_RETRIES
-			EndIf
-			Return
-		EndIf
-		DrawAllMenuButtons()
-		Flip
-		Delay 10
-		If Int((MilliSecs()-(waitForCo-10000))/1000) > 10 Then
-			Steam_PushByte(PACKET_LOAD)
-			WriteShortStringAsBytes("")
-			Steam_PushString(VersionNumber)
-			Steam_PushString(mp_O\PlayerName)
-			Steam_SendPacketToUser(UserIDUpper, UserIDLower)
-			waitForCo = MilliSecs()+10000
-			retries = retries + 1
-		EndIf
-	Wend
-	
-	;Necessary here so that the client knows the host's information regarding where authorization packages will be sent to
-	CreateHostPlayerAsClient(Steam_GetSenderIDUpper(), Steam_GetSenderIDLower())
-	
-	ConnectFinal()
-	
-	If m3d = Null And MainMenuOpen Then
-		MainMenuTab = MenuTab_Serverlist
-		Delete Each Menu3DInstance
-		InitConsole(2)
-		Load3DMenu()
-	EndIf
+	ConnectWithNoPassword(UserIDUpper%, UserIDLower%)
+	mp_I\ServerMSG = SERVER_MSG_CONNECT
+	mp_I\ConnectionTime = 0.0
+	mp_I\ConnectionRetries = 0
 	
 	CatchErrors("Uncaught (Connect)")
 End Function
@@ -494,12 +430,13 @@ Function ConnectFinal()
 		
 		Steam_PushByte(PACKET_LOAD)
 		CreateSharedSecret(Players[0]\SteamIDUpper, Players[0]\SteamIDLower, secret)
-		WriteShortStringAsBytes(Key_Encode(KEY, secret))
+		WriteShortStringAsBytes(Key_Encode(ENCRYPTION_KEY, secret))
 		Steam_PushString(VersionNumber)
 		Steam_PushString(mp_O\PlayerName)
 		Steam_SendPacketToUser(Players[0]\SteamIDUpper, Players[0]\SteamIDLower)
 		While (Not getconn)
 			getconn = Steam_LoadPacket()
+			Flip
 		Wend
 		ConnectFinal()
 		Return
@@ -596,11 +533,21 @@ Function ConnectFinal()
 	CatchErrors("Uncaught (ConnectFinal)")
 End Function
 
+Function ConnectWithNoPassword(UserIDUpper%, UserIDLower%)
+	
+	Steam_PushByte(PACKET_LOAD)
+	WriteShortStringAsBytes("")
+	Steam_PushString(VersionNumber)
+	Steam_PushString(mp_O\PlayerName)
+	Steam_SendPacketToUser(UserIDUpper, UserIDLower)
+	
+End Function
+
 Function ConnectViaPassword()
 	
 	Steam_PushByte(PACKET_AUTHORIZE)
 	Steam_PushString(mp_I\ConnectPassword)
-	WriteShortStringAsBytes(Key_Encode(KEY, FindSharedSecret(Players[0]\SteamIDUpper, Players[0]\SteamIDLower)))
+	WriteShortStringAsBytes(Key_Encode(ENCRYPTION_KEY, FindSharedSecret(Players[0]\SteamIDUpper, Players[0]\SteamIDLower)))
 	Steam_PushString(VersionNumber)
 	Steam_PushString(mp_O\PlayerName)
 	Steam_SendPacketToUser(Players[0]\SteamIDUpper, Players[0]\SteamIDLower)
@@ -656,7 +603,7 @@ Function CheckForConnectingPlayer(currMSGSync%)
 					Steam_PushByte(PACKET_KEY)
 					WriteShortStringAsBytes(secret)
 					Steam_SendPacketToUser(IDUpper, IDLower)
-				ElseIf Key_Encode(c_key, FindSharedSecret(IDUpper, IDLower)) <> KEY Then
+				ElseIf Key_Encode(c_key, FindSharedSecret(IDUpper, IDLower)) <> ENCRYPTION_KEY Then
 					Steam_PushByte(PACKET_KICK)
 					Steam_PushByte(SERVER_MSG_KICK_ENCRYPTION)
 					Steam_SendPacketToUser(IDUpper, IDLower)
@@ -752,40 +699,46 @@ Function CheckForConnectingPlayer(currMSGSync%)
 End Function
 
 Function Disconnect()
-	Local i%
+	Local i%, prevMilliSecs%
 	
-	;DebugLog "Disconnect Server "+mp_I\Server+" Handle"
+	Steam_LeaveLobby()
 	If mp_I\PlayState = GAME_SERVER Then
-		For i=1 To (mp_I\MaxPlayers-1)
-			If Players[i]<>Null Then
-				;WriteByte mp_I\Server,PACKET_QUIT
-				;SendUDPMsg(mp_I\Server,Players[i]\IP,Players[i]\Port)
+		For i = 1 To (mp_I\MaxPlayers-1)
+			If Players[i] <> Null Then
 				Steam_PushByte(PACKET_QUIT)
 				Steam_SendPacketToUser(Players[i]\SteamIDUpper, Players[i]\SteamIDLower)
-				;Steam_CloseConnection(Players[i]\SteamIDUpper, Players[i]\SteamIDLower)
 			EndIf
 		Next
 	Else
 		If Players[0]<>Null Then
-			;WriteByte mp_I\Server,PACKET_QUIT
-			;WriteByte(mp_I\Server,mp_I\PlayerID)
-			;SendUDPMsg(mp_I\Server,Players[0]\IP,Players[0]\Port)
 			Steam_PushByte(PACKET_QUIT)
 			Steam_PushByte(mp_I\PlayerID)
 			Steam_SendPacketToUser(Players[0]\SteamIDUpper, Players[0]\SteamIDLower)
-			;Steam_CloseConnection(Players[0]\SteamIDUpper, Players[0]\SteamIDLower)
 		EndIf
 	EndIf
-	;CloseUDPStream(mp_I\Server)
-;	For i = 0 To (mp_I\MaxPlayers-1)
-;		If Players[i]<>Null Then
-;			Delete Players[i]
-;		EndIf
-;	Next
-;	Delete Each ChatMSG
+	
+	DrawLoading(0, True)
+	prevMilliSecs = MilliSecs()
+	While ((MilliSecs() - prevMilliSecs) / 1000.0) < 1.0
+		DrawLoading(-1, True)
+		Flip
+	Wend
+	
+	If mp_I\PlayState = GAME_SERVER Then
+		For i = 1 To (mp_I\MaxPlayers-1)
+			If Players[i]<>Null Then
+				Steam_CloseConnection(Players[i]\SteamIDUpper, Players[i]\SteamIDLower)
+			EndIf
+		Next
+	Else
+		If Players[0]<>Null Then
+			Steam_CloseConnection(Players[0]\SteamIDUpper, Players[0]\SteamIDLower)
+		EndIf
+	EndIf
+	
 	mp_I\PlayerCount = 0
 	mp_I\ChatMSGID = 0
-	Steam_LeaveLobby()
+	
 End Function
 
 Function SaveMPOptions()
@@ -842,6 +795,7 @@ Function MPMainLoop()
 				If prevmousedown1 = True And MouseDown1=False Then MouseUp1 = True Else MouseUp1 = False
 				
 				MouseHit2 = MouseHit(2)
+				MouseDown2 = MouseDown(2)
 				
 				MouseHit3 = MouseHit(3)
 				
@@ -863,6 +817,7 @@ Function MPMainLoop()
 				MouseDown1 = JoyDown(CK_LMouse)
 				If prevmousedown1 = True And MouseDown1=False Then MouseUp1 = True Else MouseUp1 = False
 				MouseHit2 = JoyHit(CK_RMouse)
+				MouseDown2 = JoyDown(CK_RMouse)
 				MouseHit3 = JoyHit(CK_MMouse)
 				If (Not InLobby()) And (Not MenuOpen) And (Not ConsoleOpen) And (Not mp_I\ChatOpen) And (Not IsModerationOpen()) Then
 					keyhituse = JoyHit(CK_Use)
@@ -1096,6 +1051,7 @@ Function MPMainLoopClient()
 				If prevmousedown1 = True And MouseDown1=False Then MouseUp1 = True Else MouseUp1 = False
 				
 				MouseHit2 = MouseHit(2)
+				MouseDown2 = MouseDown(2)
 				
 				MouseHit3 = MouseHit(3)
 				
@@ -1112,6 +1068,7 @@ Function MPMainLoopClient()
 				MouseDown1 = JoyDown(CK_LMouse)
 				If prevmousedown1 = True And MouseDown1=False Then MouseUp1 = True Else MouseUp1 = False
 				MouseHit2 = JoyHit(CK_RMouse)
+				MouseDown2 = JoyDown(CK_RMouse)
 				MouseHit3 = JoyHit(CK_MMouse)
 				keyhituse = JoyHit(CK_Use)
 				keydownuse = JoyDown(CK_Use)

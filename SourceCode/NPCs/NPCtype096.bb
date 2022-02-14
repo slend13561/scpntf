@@ -151,7 +151,7 @@ Function UpdateNPCtype096(n.NPCs)
 									pvt = CreatePivot()
 									CameraShake = 30
 									BlurTimer = 2000
-									DeathMSG = "A large amount of blood found in [DATA REDACTED]. DNA indentified as Subject D-9341. Most likely [DATA REDACTED] by SCP-096."
+									DeathMSG = "A large amount of blood found in [DATA REDACTED]. DNA indentified as "+Designation+". Most likely [Data REDACTED] by SCP-096."
 									Kill()
 									KillAnim = 1
 									For i = 0 To 6

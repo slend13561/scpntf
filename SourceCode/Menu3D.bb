@@ -63,6 +63,7 @@ Function MainLoopMenu()
 				If prevmousedown1 = True And MouseDown1=False Then MouseUp1 = True Else MouseUp1 = False
 				
 				MouseHit2 = MouseHit(2)
+				MouseDown2 = MouseDown(2)
 				
 				MouseHit3 = MouseHit(3)
 				
@@ -79,6 +80,7 @@ Function MainLoopMenu()
 				MouseDown1 = JoyDown(CK_LMouse)
 				If prevmousedown1 = True And MouseDown1=False Then MouseUp1 = True Else MouseUp1 = False
 				MouseHit2 = JoyHit(CK_RMouse)
+				MouseDown2 = JoyDown(CK_RMouse)
 				MouseHit3 = JoyHit(CK_MMouse)
 				keyhituse = JoyHit(CK_Use)
 				keydownuse = JoyDown(CK_Use)
@@ -1700,7 +1702,9 @@ Function ReloadAll()
 ;	FreeImage AchvLocked
 	FreeImage LoadingBack
 	For ls = Each LoadingScreens
-		FreeImage ls\img
+		For i = 0 To (ls\imgamount-1)
+			FreeImage ls\img[i]
+		Next
 		Delete ls
 	Next
 	Local name$ = m3d\RoomName

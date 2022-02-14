@@ -217,7 +217,11 @@ Function DrawGUIMP()
 					EndIf
 					Color 0,255,0
 					SetFont fo\Font[Font_Digital_Medium]
+					If mp_I\BossNPC <> Null Then
+						TextWithAlign x,y,"X ???",2,1
+					Else
 					TextWithAlign x,y,"X "+mp_I\Gamemode\EnemyCount,2,1
+					EndIf	
 					DrawImage mp_I\Gamemode\img[0],x-100,y
 					TextWithAlign x,y+60,GetLocalString("Multiplayer", "wave")+" "+(mp_I\Gamemode\Phase/2)+"/"+(mp_I\Gamemode\MaxPhase),2,1
 				EndIf

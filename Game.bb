@@ -15,7 +15,7 @@
 CheckForDlls()
 
 ;This file needs to be created inside the SourceCode folder and named "Key.bb" and has to contain a variable named "Key" with a value. Example:
-;Global KEY$ = "MyKey"
+;Global ENCRYPTION_KEY$ = "MyKey"
 Include "SourceCode/Key.bb"
 
 Include "SourceCode/SteamConstants.bb"
@@ -45,6 +45,8 @@ Type Options
 	Field ConsoleEnabled%
 	Field RenderCubeMapMode%
 	Field MouseSmooth#
+	Field HoldToAim%
+	Field HoldToCrouch%
 End Type
 
 ;Include the controls file
@@ -84,10 +86,8 @@ Function CheckForDlls()
 		RuntimeError "The following DLLs were not found in the game directory:"+Chr(13)+Chr(10)+Chr(13)+Chr(10)+InitErrorStr
 	EndIf
 	
-	;REMOVE FOR GITHUB VERSION
 	Local SteamResultCode% = Steam_Init()
 	If SteamResultCode <> 0 Then RuntimeError("Steam API failed to initialize! Error Code: " + SteamResultCode)
-	;UNTIL HERE
 	
 End Function
 
@@ -122,7 +122,9 @@ Function InitOptions()
 	opt\VoiceVol# = GetINIFloat(gv\OptionFile, "audio", "voice volume", 1.0)
 	opt\MasterVol# = GetINIFloat(gv\OptionFile, "audio", "master volume", 1.0)
 	opt\MusicVol# = GetINIFloat(gv\OptionFile, "audio", "music volume", 1.0)
-	opt\MouseSmooth# = GetINIFloat(gv\OptionFile,"options", "mouse smoothing", 1.0)
+	opt\MouseSmooth# = GetINIFloat(gv\OptionFile, "options", "mouse smoothing", 1.0)
+	opt\HoldToAim% = GetINIInt(gv\OptionFile, "options", "hold to aim", 1)
+	opt\HoldToCrouch% = GetINIInt(gv\OptionFile, "options", "hold to crouch", 1)
 	
 	LoadResolutions()
 	

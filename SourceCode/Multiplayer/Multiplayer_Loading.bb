@@ -12,7 +12,7 @@ Function LoadingServer()
 	InitMPGame()
 	RespawnPlayers()
 	
-	DrawLoading(100)
+	DrawLoading(100, False, mp_I\Gamemode\name)
 	
 	For i = 1 To (mp_I\MaxPlayers-1)
 		If Players[i]<>Null Then
@@ -38,7 +38,7 @@ Function LoadingClient(ingame%=False)
 	
 	InitMPGame()
 	
-	DrawLoading(100)
+	DrawLoading(100, False, mp_I\Gamemode\name)
 	
 	ResetTimingAccumulator()
 	
@@ -53,7 +53,7 @@ Function CreateMPGame()
 	Local p.Player
 	Local StrTemp$
 	
-	DrawLoading(0)
+	DrawLoading(0, False, mp_I\Gamemode\name)
 	
 	For p = Each Player
 		p\FinishedLoading = False
@@ -259,7 +259,7 @@ Function CreateMPGame()
 	
 	MainMenuTab = MenuTab_Default
 	
-	DrawLoading(6)
+	DrawLoading(6, False, mp_I\Gamemode\name)
 	
 	NTF_GameModeFlag = 3
 	
@@ -332,7 +332,7 @@ Function CreateMPGame()
 	;Currently is like that, will change in the future
 	EntityParent Camera,mpl\CameraPivot
 	
-	DrawLoading(7)
+	DrawLoading(7, False, mp_I\Gamemode\name)
 	
 	CreateBlurImage()
 	CameraProjMode ark_blur_cam,0
@@ -368,7 +368,7 @@ Function CreateMPGame()
 	MoveEntity(Light, 0, 0, 1.0)
 	HideEntity Light
 	
-	DrawLoading(8)
+	DrawLoading(8, False, mp_I\Gamemode\name)
 	
 	mp_I\PlayerModel_Lower[Team_MTF-1] = LoadAnimMesh_Strict("GFX\npcs\MTF_Player_Lower.b3d")
 	ExtractAnimSeq mp_I\PlayerModel_Lower[Team_MTF-1], 486, 574
@@ -485,7 +485,7 @@ Function CreateMPGame()
 		HideEntity mp_I\BossModel
 	EndIf
 	
-	DrawLoading(9)
+	DrawLoading(9, False, mp_I\Gamemode\name)
 	
 	LightSpriteTex[0] = LoadTexture_Strict("GFX\light1.jpg",1,2)
 	LightSpriteTex[1] = LoadTexture_Strict("GFX\light2.jpg",1,2)
@@ -494,7 +494,7 @@ Function CreateMPGame()
 	LastItemID% = 0
 	InitMPItemTemplates()
 	
-	DrawLoading(10)
+	DrawLoading(10, False, mp_I\Gamemode\name)
 	
 	For i = 0 To 7
 		NTF_PainSFX[i]=LoadSound_Strict("SFX\Player\pain"+(i+1)+".ogg")
@@ -521,7 +521,7 @@ Function CreateMPGame()
 	WaterParticleTexture[0] = LoadTexture_Strict("GFX\WaterParticle.png",1+2,2)
 	;WaterParticleTexture[1] = LoadTexture_Strict("GFX\WaterParticle2.png",1+2,2)
 	
-	DrawLoading(11)
+	DrawLoading(11, False, mp_I\Gamemode\name)
 	
 	i = 1
 	Repeat
@@ -532,7 +532,7 @@ Function CreateMPGame()
 		i=i+1
 	Forever
 	
-	DrawLoading(12)
+	DrawLoading(12, False, mp_I\Gamemode\name)
 	
 	InitGuns()
 	
@@ -543,7 +543,7 @@ Function CreateMPGame()
 	EntityTexture mp_I\MuzzleFlash,ParticleTextures[1]
 	HideEntity mp_I\MuzzleFlash
 	
-	DrawLoading(15)
+	DrawLoading(15, False, mp_I\Gamemode\name)
 	
 	LoadAllSounds()
 	
@@ -597,11 +597,11 @@ Function CreateMPGame()
 	InitFluLight(1,FLU_STATE_ON,Null)
 	InitFluLight(2,FLU_STATE_FLICKER,Null)
 	
-	DrawLoading(30)
+	DrawLoading(30, False, mp_I\Gamemode\name)
 	If mp_I\Gamemode\ID = Gamemode_Waves Then
 		InitMPWayPoints(30)
 	EndIf	
-	DrawLoading(70)
+	DrawLoading(70, False, mp_I\Gamemode\name)
 	
 	CreateDamageOverlay()
 	CreateCommunicationAndSocialWheel()
@@ -902,10 +902,12 @@ Function LeaveMPGame(playbuttonsfx%=False)
 	MenuOpen = False
 	MainMenuOpen = True
 	MainMenuTab = MenuTab_Serverlist
-	FlushKeys()
+	mp_I\ServerListPage = 0
+	mp_I\SelectedListServer = 0
+	ResetInput()
 	
 End Function
 
 ;~IDEal Editor Parameters:
-;~F#1#43#18A
+;~F#1#1F#30#41#286
 ;~C#Blitz3D

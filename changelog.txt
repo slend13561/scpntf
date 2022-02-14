@@ -1,21 +1,37 @@
-v0.2.1
-Thank you everyone for your bug reports! We made an attempt to fix most critical issues.
+v0.2.2
 
--Fixed "Catastrophic error" crash at game's launch due to resolution selection.
--Fixed a bug where some people couldn't press some of the buttons in the main menu or settings.
--Fixed NPCs in Waves gamemode not following anyone else, but host.
--Fixed dead NPCs sliding in Waves mode.
--Fixed NPC crash in Waves when NPC falls down and get's removed by the game.
--Fixed the issue with team switching in Team Deathmatch mode.
--Fixed a crash that accured in Light Containment Zone.
--Fixed SCP-966 not rendering even when Night-Vision Goggles are on.
--Fixed SCP-173's being too lightspeed.
--Fixed reserved weapon ammo not saving after dropping the weapon from inventory and picking it back up.
--Fixed message display for some items.
--Fixed arrows for page navigation not drawing in the server list.
--Fixed error message not showing full information about the cause of error.
--You can no longer equip the gasmask if you already have one.
--You now press the interact key for getting the drawing from SCP-1048.
--Slight fix for aim offset of M9 Beretta.
+-Added Continue button in the Main Menu which will load up the last saved game.
+-Added Waves and Team Deathmatch loading screens that explain the basic information about the gamemodes.
+-Players can now reload while aiming.
+-Improvements in Options menu:
+    *Revamped Controls settings. The key binding option is now in a separate menu tab.
+    *Added "Hold to aim" and "Hold to crouch" options.
+    *Removed unused settings.
+    *Restrict the FPS slider to 144 FPS (instead of 240).
+-Improvements for the Tesla Gates:
+    *The code for the Tesla Gates has been reworked.
+    *Optimized distance calculation of the player near the Tesla Gates.
+    *D-Class and zombies can now be killed by the Tesla Gates.
+    *SCP-049 can now get stunned by the Tesla Gates.
+-Fixes in Old Sewers:
+    *Fixed some spawning points that caused NPCs to get stuck.
+    *Fixed valve handle texture appearing gray instead of red.
+    *Removed one of the pipes that was sticking into the wall.
+-In Waves gamemode, the last wave (aka Boss wave) now spawns infinite amount of enemies.
+-Loading screen images now scale according to the game's resolution.
+-Added few more restricted symbols for the save file names to prevent crashes.
+-Fixed elevators in SCP-939 basement and SCP-049 containment chamber not always working properly.
+-Fixed incorrect kill count in Waves gamemode.
+-Fixed Show FPS option description not appearing.
+-Fixed S-NAV Navigators not showing the map layout.
+    *S-NAV 300 Navigator now shows low signal with ane effect instead of showing rooms that the player was in before.
+-Fixed floating buttons in room2_offices_4 and room2_servers_1.
+-An attempt to fix "Encryption Error" during connection to the server (thanks juanjp600!).
+-Fixed some other connection issues when player is connecting to the server.
+-Fixed resolution being too zoomed in on high DPI monitors.
+-Optimized few hallway rooms.
+-Removed lockroom_1 from spawning in Entrance Zone.
+
+...and other small fixes and improvements!
 
 ----------------------------------------------------------------------------------

@@ -332,6 +332,7 @@ Function UpdateEvents()
 	
 	UpdateBiggerParticles = False
 	NTF_DisableLight = False
+	CoffinDistance = 1000.0
 	
 	For e.Events = Each Events
 		Select e\EventName

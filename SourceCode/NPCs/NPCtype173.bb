@@ -57,6 +57,7 @@ Function CreateNPCtype173(n.NPCs)
 	HideEntity n\obj3
 	
 	n\CollRadius = 0.32
+	n\HP = 100
 End Function
 
 Function UpdateNPCtype173(n.NPCs)

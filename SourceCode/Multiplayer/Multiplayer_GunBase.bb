@@ -247,34 +247,34 @@ Function ShootGunMP(playerID%,Accuracy#,DamageOnEntity%,Range#=0.0)
 	ent_pick% = PickedEntity()
 	If ent_pick%<>0 Then
 		temp = 1
-		currHP = 1
 		For n.NPCs = Each NPCs
 			prevHP = n\HP
+			currHP = prevHP
 			For j = 0 To 24
-				If ent_pick% = n\HitBox1[j] ;Head has been shot, instant death (when a NPC has 100 HP, otherwise not)
-					n\GotHit = 100
+				If ent_pick% = n\HitBox1[j] ;Head has been shot
+					n\GotHit = DamageOnEntity*4
+					currHP = n\HP - n\GotHit
 					If mp_I\PlayState = GAME_SERVER Then
 						n\HP = n\HP - n\GotHit
 					EndIf
-					currHP = n\HP - n\GotHit
 					temp = 2
 					Exit
 				EndIf
 				If ent_pick% = n\HitBox2[j] ;Body has been shot, doing damage with g\DamageOnEntity
 					n\GotHit = DamageOnEntity
+					currHP = n\HP - n\GotHit
 					If mp_I\PlayState = GAME_SERVER Then
 						n\HP = n\HP - n\GotHit
 					EndIf
-					currHP = n\HP - n\GotHit
 					temp = 2
 					Exit
 				EndIf
 				If ent_pick% = n\HitBox3[j] ;Arms or legs have been shot, doing half as much damage as with the body
 					n\GotHit = (DamageOnEntity/2)
+					currHP = n\HP - n\GotHit
 					If mp_I\PlayState = GAME_SERVER Then
 						n\HP = n\HP - n\GotHit
 					EndIf
-					currHP = n\HP - n\GotHit
 					temp = 2
 					Exit
 				EndIf
@@ -297,22 +297,25 @@ Function ShootGunMP(playerID%,Accuracy#,DamageOnEntity%,Range#=0.0)
 					ElseIf n\NPCtype = NPCtype1048a Then
 						If n\State = MP1048a_STATE_ATTACK Then
 							Steam_Achieve(STAT_1048)
-						EndIf	
+						EndIf
 					EndIf
-				EndIf	
+				EndIf
+			EndIf
+			If temp = 2 Then
+				Exit
 			EndIf
 		Next
-		currHP = 1
 		For i = 0 To (mp_I\MaxPlayers-1)
 			If Players[i]<>Null Then
 				prevHP = Players[i]\CurrHP
+				currHP = prevHP
 				For j = 0 To 24
-					If ent_pick% = Players[i]\HitBox1[j] Then ;Head has been shot, instant death (when a NPC has 100 HP, otherwise not)
+					If ent_pick% = Players[i]\HitBox1[j] Then ;Head has been shot
 						If Players[i]\Team<>Players[playerID]\Team Then
 							DamagePlayer(i, DamageOnEntity*4, DamageOnEntity/2)
 							currHP = Players[i]\CurrHP
 							If mp_I\PlayState = GAME_CLIENT Then
-								n\HP = prevHP
+								Players[i]\CurrHP = prevHP
 							EndIf
 							temp = 2
 							headshot = True
@@ -326,7 +329,7 @@ Function ShootGunMP(playerID%,Accuracy#,DamageOnEntity%,Range#=0.0)
 							DamagePlayer(i, DamageOnEntity/2, DamageOnEntity)
 							currHP = Players[i]\CurrHP
 							If mp_I\PlayState = GAME_CLIENT Then
-								n\HP = prevHP
+								Players[i]\CurrHP = prevHP
 							EndIf
 							temp = 2
 						Else
@@ -339,7 +342,7 @@ Function ShootGunMP(playerID%,Accuracy#,DamageOnEntity%,Range#=0.0)
 							DamagePlayer(i, DamageOnEntity/4, DamageOnEntity/2)
 							currHP = Players[i]\CurrHP
 							If mp_I\PlayState = GAME_CLIENT Then
-								n\HP = prevHP
+								Players[i]\CurrHP = prevHP
 							EndIf
 							temp = 2
 						Else
@@ -369,6 +372,9 @@ Function ShootGunMP(playerID%,Accuracy#,DamageOnEntity%,Range#=0.0)
 							Exit
 						EndIf
 					Next		
+				EndIf
+				If temp = 2 Then
+					Exit
 				EndIf
 			EndIf
 		Next

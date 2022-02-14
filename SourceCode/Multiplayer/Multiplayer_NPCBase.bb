@@ -207,7 +207,7 @@ Function UpdateNPCsServer()
 				n\KilledBy = 0
 				
 				If mp_I\PlayState = GAME_SERVER Then
-					If prevDeathState<>n\IsDead Then
+					If prevDeathState<>n\IsDead And mp_I\BossNPC = Null Then
 						mp_I\Gamemode\EnemyCount = mp_I\Gamemode\EnemyCount - 1
 					EndIf
 					

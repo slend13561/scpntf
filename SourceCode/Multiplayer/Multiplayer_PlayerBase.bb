@@ -326,8 +326,16 @@ Function MovePlayerServer()
 		EndIf
 		
 		;[CONTROLLER]
-		If Players[mp_I\PlayerID]\CurrHP > 0 Then
-			If (Not co\Enabled)
+		If opt\HoldToCrouch Then
+			If Playable Then
+				If (Not co\Enabled) Then
+					Players[mp_I\PlayerID]\Crouch = KeyDown(KEY_CROUCH)
+				Else
+					Players[mp_I\PlayerID]\Crouch = JoyDown(CK_Crouch)
+				EndIf
+			EndIf
+		Else
+			If (Not co\Enabled) Then
 				If KeyHit(KEY_CROUCH) And Playable Then Players[mp_I\PlayerID]\Crouch = (Not Players[mp_I\PlayerID]\Crouch)
 			Else
 				If JoyHit(CK_Crouch) And Playable Then Players[mp_I\PlayerID]\Crouch = (Not Players[mp_I\PlayerID]\Crouch)

@@ -1702,7 +1702,7 @@ Function UpdateGUI()
 						If Wearing714=1 Then
 							Msg = Chr(34) + "DUDE WTF THIS SHIT DOESN'T EVEN WORK" + Chr(34)
 						Else
-							DeathMSG = "Subject D-9341 found in a comatose state in [DATA REDACTED]. The subject was holding what appears to be a cigarette while smiling widely. "
+							DeathMSG = Designation+" found in a comatose state in [DATA REDACTED]. The subject was holding what appears to be a cigarette while smiling widely. "
 							DeathMSG = DeathMSG+"Chemical analysis of the cigarette has been inconclusive, although it seems to contain a high concentration of an unidentified chemical "
 							DeathMSG = DeathMSG+"whose molecular structure is remarkably similar to that of tetrahydrocannabinol."
 							Msg = Chr(34) + "UH WHERE... WHAT WAS I DOING AGAIN... MAN I NEED TO TAKE A NAP..." + Chr(34)
@@ -2457,7 +2457,7 @@ Function DrawGUI()
 				Text x + 350, 50, "Current Room Position: ("+PlayerRoom\x+", "+PlayerRoom\y+", "+PlayerRoom\z+")"
 			EndIf
 			
-			Text x + 350, 90, SystemProperty("os")+" "+gv\OSBit+" bit, CPU: "+SystemProperty("cpuname")+" (Arch: "+GetEnv("PROCESSOR_ARCHITECTURE")+", "+GetEnv("NUMBER_OF_PROCESSORS")+" Threads)"
+			Text x + 350, 90, SystemProperty("os")+" "+gv\OSBit+" bit, CPU: "+SystemProperty("cpuname")+" (Arch: "+SystemProperty("cpuarch")+", "+GetEnv("NUMBER_OF_PROCESSORS")+" Threads)"
 			Text x + 350, 110, "Phys. Memory: "+(AvailPhys()/1024)+" MB/"+(TotalPhys()/1024)+" MB ("+(AvailPhys())+" KB/"+(TotalPhys())+" KB). CPU Usage: "+MemoryLoad()+"%"
 			Text x + 350, 130, "Virtual Memory: "+(AvailVirtual()/1024)+" MB/"+(TotalVirtual()/1024)+" MB ("+(AvailVirtual())+" KB/"+(TotalVirtual())+" KB)"
 			Text x + 350, 150, "Video Memory: "+(AvailVidMem()/1024)+" MB/"+(TotalVidMem()/1024)+" MB ("+(AvailVidMem())+" KB/"+(TotalVidMem())+" KB)"
@@ -3232,7 +3232,8 @@ Function DrawGUI()
 					SetFont fo\Font[Font_Digital_Small]
 					
 					If PlayerRoom\RoomTemplate\Name = "pocketdimension" Then
-						If (MilliSecs() Mod 1000) > 300 Then	
+						If (MilliSecs() Mod 1000) > 300 Then
+							Color 30,30,30
 							Text(x, y + height / 2 - 80, "ERROR 06", True)
 							Text(x, y + height / 2 - 60, "LOCATION UNKNOWN", True)						
 						EndIf
@@ -3240,47 +3241,59 @@ Function DrawGUI()
 						
 						If SelectedItem\state > 0 And (Rnd(CoffinDistance + 15.0) > 1.0 Lor PlayerRoom\RoomTemplate\Name <> "coffin") Then
 							
-							PlayerX% = Floor(EntityX(PlayerRoom\obj) / 8.0 + 0.5)
-							PlayerZ% = Floor(EntityZ(PlayerRoom\obj) / 8.0 + 0.5)
+							PlayerX% = Floor(EntityX(Collider) / 8.0 + 0.5) ;PlayerRoom\obj
+							PlayerZ% = Floor(EntityZ(Collider) / 8.0 + 0.5) ;PlayerRoom\obj
 							
 							SetBuffer ImageBuffer(NavBG)
 							Local xx = x-ImageWidth(SelectedItem\itemtemplate\img)/2
 							Local yy = y-ImageHeight(SelectedItem\itemtemplate\img)/2+85
 							DrawImage(SelectedItem\itemtemplate\img, xx, yy)
 							
-							x = x - 12 + ((EntityX(Collider) - 4.0) Mod 8.0)*3
-							y = y + 12 - ((EntityZ(Collider)-4.0) Mod 8.0)*3
-							For x2 = Max(1, PlayerX - 6) To Min(MapWidth - 1, PlayerX + 6)
-								For z2 = Max(1, PlayerZ - 6) To Min(MapHeight - 1, PlayerZ + 6)
-									
-									If CoffinDistance > 16.0 Lor Rnd(16.0)<CoffinDistance Then 
-										If MapTemp[x2 * MapWidth + z2] And (MapFound[x2 * MapWidth + z2] > 0 Lor SelectedItem\itemtemplate\name = "S-NAV 310 Navigator" Lor SelectedItem\itemtemplate\name = "S-NAV Navigator Ultimate") Then
-											Local drawx% = x + (PlayerX - x2) * 24 , drawy% = y - (PlayerZ - z2) * 24 
+							Local grid_size%
+							If NTF_CurrZone = 3 Then
+								grid_size% = MapGridSizeEZ
+							Else
+								grid_size% = MapGridSize
+							EndIf
+							
+							Local posX# = EntityX(Collider) - 4.0
+							Local posZ# = EntityZ(Collider) - 4.0
+							Local stepsX% = 0
+							Local stepsZ% = 0
+							Local tempPos# = posX
+							While tempPos < 0.0
+								stepsX = stepsX + 1
+								tempPos = tempPos + 8.0
+							Wend
+							tempPos# = posZ
+							While tempPos < 0.0
+								stepsZ = stepsZ + 1
+								tempPos = tempPos + 8.0
+							Wend
+							x = x - 12 + ((posX + (8.0 * stepsX)) Mod 8.0) * 3
+							y = y + 12 - ((posZ + (8.0 * stepsZ)) Mod 8.0) * 3
+							For z2 = Max(0, PlayerZ - 6) To Min(grid_size - 1, PlayerZ + 6)
+								For x2 = Max(0, PlayerX - 6) To Min(grid_size - 1, PlayerX + 6)
+									If SelectedItem\itemtemplate\name = "S-NAV 300 Navigator" And Rand(0,1) Then Exit
+									If CoffinDistance > 16.0 Lor Rnd(16.0) < CoffinDistance Then
+										;Make distinguishing between S-NAV 300 Navigator, S-NAV 310 Navigator and S-NAV Ultimate
+										If CurrGrid\Grid[x2 + (z2 * grid_size)] Then
+											Local drawx% = x + (PlayerX - x2) * 24 , drawy% = y - (PlayerZ - z2) * 24
 											
-											;Color (30,30,30)
-											;If SelectedItem\itemtemplate\name = "S-NAV Navigator" Then Color(100, 0, 0)
-											;
-											;If MapTemp[(x2 + 1) * MapWidth + z2] = False Then Line(drawx - 12, drawy - 12, drawx - 12, drawy + 12)
-											;If MapTemp[(x2 - 1) * MapWidth + z2] = False Then Line(drawx + 12, drawy - 12, drawx + 12, drawy + 12)
-											;
-											;If MapTemp[x2 * MapWidth + z2 - 1] = False Then Line(drawx - 12, drawy - 12, drawx + 12, drawy - 12)
-											;If MapTemp[x2 * MapWidth + z2 + 1]= False Then Line(drawx - 12, drawy + 12, drawx + 12, drawy + 12)
-											
-											If MapTemp[(x2+1) * MapWidth + z2]=False
-												DrawImage NavImages[3],drawx-12,drawy-12
+											If (x2 + 1) > (grid_size - 1) Lor (Not CurrGrid\Grid[(x2 + 1) + (z2 * grid_size)]) Then
+												DrawImage NavImages[3], drawx - 12, drawy - 12
 											EndIf
-											If MapTemp[(x2-1) * MapWidth + z2]=False
-												DrawImage NavImages[1],drawx-12,drawy-12
+											If (x2 - 1) < 0 Lor (Not CurrGrid\Grid[(x2 - 1) + (z2 * grid_size)]) Then
+												DrawImage NavImages[1], drawx - 12, drawy - 12
 											EndIf
-											If MapTemp[x2 * MapWidth + z2-1]=False
-												DrawImage NavImages[0],drawx-12,drawy-12
+											If (z2 - 1) < 0 Lor (Not CurrGrid\Grid[x2 + ((z2 - 1) * grid_size)]) Then
+												DrawImage NavImages[0], drawx - 12, drawy - 12
 											EndIf
-											If MapTemp[x2 * MapWidth + z2+1]=False
-												DrawImage NavImages[2],drawx-12,drawy-12
+											If (z2 + 1) > (grid_size - 1) Lor (Not CurrGrid\Grid[x2 + ((z2 + 1) * grid_size)]) Then
+												DrawImage NavImages[2], drawx - 12, drawy - 12
 											EndIf
 										EndIf
 									EndIf
-									
 								Next
 							Next
 							
@@ -3300,7 +3313,7 @@ Function DrawGUI()
 							EndIf
 							If (MilliSecs() Mod 1000) > 300 Then
 								If SelectedItem\itemtemplate\name <> "S-NAV 310 Navigator" And SelectedItem\itemtemplate\name <> "S-NAV Navigator Ultimate" Then
-									Text(x - width/2 + 10, y - height/2 + 10, "MAP DATABASE OFFLINE")
+									Text(x - width/2 + 10, y - height/2 + 10, "WARNING - LOW SIGNAL")
 								EndIf
 								
 								yawvalue = EntityYaw(Collider)-90

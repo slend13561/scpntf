@@ -7,8 +7,12 @@ Function FillRoom_Room2_Servers_1(r.Rooms)
 	d\locked = True
 	
 	r\RoomDoors[0] = CreateDoor(r\zone, r\x - 208.0 * RoomScale, 0.0, r\z - 736.0 * RoomScale, 90, r, True, False)
+	PositionEntity(r\RoomDoors[0]\buttons[0], r\x - 198.0 * RoomScale, EntityY(r\RoomDoors[0]\buttons[0],True), EntityZ(r\RoomDoors[0]\buttons[0],True), True)
+	PositionEntity(r\RoomDoors[0]\buttons[1], r\x - 218.0 * RoomScale, EntityY(r\RoomDoors[0]\buttons[1],True), EntityZ(r\RoomDoors[0]\buttons[1],True), True)
 	r\RoomDoors[0]\AutoClose=False
 	r\RoomDoors[1] = CreateDoor(r\zone, r\x - 208.0 * RoomScale, 0.0, r\z + 736.0 * RoomScale, 90, r, True, False)
+	PositionEntity(r\RoomDoors[1]\buttons[0], r\x - 198.0 * RoomScale, EntityY(r\RoomDoors[1]\buttons[0],True), EntityZ(r\RoomDoors[1]\buttons[0],True), True)
+	PositionEntity(r\RoomDoors[1]\buttons[1], r\x - 218.0 * RoomScale, EntityY(r\RoomDoors[1]\buttons[1],True), EntityZ(r\RoomDoors[1]\buttons[1],True), True)
 	r\RoomDoors[1]\AutoClose=False
 	
 	r\RoomDoors[2] = CreateDoor(r\zone, r\x - 672.0 * RoomScale, 0.0, r\z - 1024.0 * RoomScale, 0, r, False, False, False, "GEAR")

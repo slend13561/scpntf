@@ -36,6 +36,8 @@ Function CreateNPCtype106(n.NPCs)
 		EntityType n\Collider,0
 	EndIf
 	
+	n\HP = 100
+	
 End Function
 
 Function UpdateNPCtype106(n.NPCs)
@@ -241,7 +243,7 @@ Function UpdateNPCtype106(n.NPCs)
 								PlaySound_Strict(DamageSFX[1])
 								PlaySound_Strict(HorrorSFX[5])											
 								If PlayerRoom\RoomTemplate\Name = "pocketdimension" Then
-									DeathMSG = "Subject D-9341. Body partially decomposed by what is assumed to be SCP-106's "+Chr(34)+"corrosion"+Chr(34)+" effect. Body disposed of via incineration."
+									DeathMSG = Designation+". Body partially decomposed by what is assumed to be SCP-106's "+Chr(34)+"corrosion"+Chr(34)+" effect. Body disposed of via incineration."
 									Kill()
 								Else
 									PlaySound_Strict(OldManSFX[3])

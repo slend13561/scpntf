@@ -174,8 +174,8 @@ End Type
 
 InitController()
 
-Const VersionNumber$ = "0.2.1"
-Const CompatibleNumber$ = "0.2.0"
+Const VersionNumber$ = "0.2.2"
+Const CompatibleNumber$ = "0.2.2"
 
 Global MenuWhite%, MenuBlack%
 Global ButtonSFX% = LoadSound_Strict("SFX\Interact\Button.ogg")
@@ -295,9 +295,7 @@ Delay 100
 
 Global CursorIMG% = LoadImage_Strict("GFX\cursor.png")
 
-Global SelectedLoadingScreen.LoadingScreens, LoadingScreenAmount%, LoadingScreenText%
-Global LoadingBack% = LoadImage_Strict("Loadingscreens\loadingback.jpg")
-InitLoadingScreens("Loadingscreens\loadingscreens.ini")
+Include "SourceCode\LoadingScreens.bb"
 
 ;For some reason, Blitz3D doesn't load fonts that have filenames that
 ;don't match their "internal name" (i.e. their display name in applications
@@ -376,7 +374,7 @@ Global PlayerZone%, PlayerRoom.Rooms
 Global GrabbedEntity%
 
 Global InvertMouse% = GetINIInt(gv\OptionFile, "options", "invert mouse y")
-Global MouseHit1%, MouseDown1%, MouseHit2%, DoubleClick%, LastMouseHit1%, MouseUp1%
+Global MouseHit1%, MouseDown1%, MouseHit2%, MouseDown2%, DoubleClick%, LastMouseHit1%, MouseUp1%
 
 Global GodMode%, NoClip%, NoClipSpeed# = 2.0
 
@@ -916,7 +914,7 @@ End Type
 InitErrorMsgs(9)
 SetErrorMsg(0, "An error occured in SCP: Nine Tailed Fox Mod v"+VersionNumber+Chr(10)+"Save compatible version: "+CompatibleNumber+". Engine version: "+SystemProperty("blitzversion"))
 SetErrorMsg(1, "OS: "+SystemProperty("os")+" "+gv\OSBit+" bit (Build: "+SystemProperty("osbuild")+")")
-SetErrorMsg(2, "CPU: "+GetEnv("PROCESSOR_IDENTIFIER")+" (Arch: "+GetEnv("PROCESSOR_ARCHITECTURE")+", "+GetEnv("NUMBER_OF_PROCESSORS")+" Threads)")
+SetErrorMsg(2, "CPU: "+Trim(SystemProperty("cpuname"))+" (Arch: "+SystemProperty("cpuarch")+", "+GetEnv("NUMBER_OF_PROCESSORS")+" Threads)")
 
 SetErrorMsg(8, Chr(10)+"Please take a screenshot of this error and send it to us!")
 
@@ -934,7 +932,7 @@ Function GlobalGameLoop()
 		
 		SetErrorMsg(3, "GPU: "+GfxDriverName(CountGfxDrivers())+" ("+((TotalVidMem()/1024)-(AvailVidMem()/1024))+" MB/"+(TotalVidMem()/1024)+" MB)")
 		SetErrorMsg(4, "Triangles rendered: "+CurrTrisAmount+", Active textures: "+ActiveTextures()+Chr(10))
-		If NTF_GameModeFlag<>3 Then
+		If NTF_GameModeFlag=0 Then
 			If PlayerRoom <> Null Then
 				SetErrorMsg(5, "Map seed: "+RandomSeed + ", Room: " + PlayerRoom\RoomTemplate\Name+" (" + Floor(EntityX(PlayerRoom\obj) / 8.0 + 0.5) + ", " + Floor(EntityZ(PlayerRoom\obj) / 8.0 + 0.5) + ", angle: "+PlayerRoom\angle + ")")
 				
@@ -945,9 +943,9 @@ Function GlobalGameLoop()
 					EndIf
 				Next
 			EndIf
-		Else
-			SetErrorMsg(5, "")
-			SetErrorMsg(6, "")
+		ElseIf NTF_GameModeFlag=3 Then
+			SetErrorMsg(5, "Map: "+mp_I\MapInList\Name)
+			SetErrorMsg(6, "Gamemode: "+mp_I\Gamemode\name+Chr(10))
 		EndIf
 		
 		CatchErrors("Global main loop")
@@ -1047,6 +1045,7 @@ Function MainLoop()
 				If prevmousedown1 = True And MouseDown1=False Then MouseUp1 = True Else MouseUp1 = False
 				
 				MouseHit2 = MouseHit(2)
+				MouseDown2 = MouseDown(2)
 				
 				MouseHit3 = MouseHit(3)
 				
@@ -1063,6 +1062,7 @@ Function MainLoop()
 				MouseDown1 = JoyDown(CK_LMouse)
 				If prevmousedown1 = True And MouseDown1=False Then MouseUp1 = True Else MouseUp1 = False
 				MouseHit2 = JoyHit(CK_RMouse)
+				MouseDown2 = JoyDown(CK_RMouse)
 				MouseHit3 = JoyHit(CK_MMouse)
 				keyhituse = JoyHit(CK_Use)
 				keydownuse = JoyDown(CK_Use)
@@ -2710,10 +2710,20 @@ Function MovePlayer()
 	EndIf
 	
 	;[CONTROLLER]
-	If (Not co\Enabled)
-		If KeyHit(KEY_CROUCH) And Playable Then Crouch = (Not Crouch)
+	If opt\HoldToCrouch Then
+		If Playable Then
+			If (Not co\Enabled) Then
+				Crouch = KeyDown(KEY_CROUCH)
+			Else
+				Crouch = JoyDown(CK_Crouch)
+			EndIf
+		EndIf
 	Else
-		If JoyHit(CK_Crouch) And Playable Then Crouch = (Not Crouch)
+		If (Not co\Enabled) Then
+			If KeyHit(KEY_CROUCH) And Playable Then Crouch = (Not Crouch)
+		Else
+			If JoyHit(CK_Crouch) And Playable Then Crouch = (Not Crouch)
+		EndIf
 	EndIf
 	
 	Local temp2# = (Speed * Sprint) / (1.0+CrouchState)
@@ -5226,7 +5236,7 @@ Function UpdateInfect()
 						PlayerRoom\NPC[0]\Sound = LoadSound_Strict("SFX\SCP\008\KillScientist2.ogg")
 						PlayerRoom\NPC[0]\SoundChn = PlaySound_Strict(PlayerRoom\NPC[0]\Sound)
 						
-						DeathMSG = "Subject D-9341 found ingesting Dr. [REDACTED] at Sector [REDACTED]. Subject was immediately terminated by Nine-Tailed Fox and sent for autopsy. "
+						DeathMSG = Designation+" found ingesting Dr. [REDACTED] at Sector [REDACTED]. Subject was immediately terminated by Nine-Tailed Fox and sent for autopsy. "
 						DeathMSG = DeathMSG + "SCP-008 infection was confirmed, after which the body was incinerated."
 						
 						Kill()
@@ -5665,6 +5675,8 @@ Function SaveOptionsINI()
 	PutINIValue(gv\OptionFile, "options", "mouse sensitivity", MouseSens)
 	PutINIValue(gv\OptionFile, "options", "mouse smoothing", opt\MouseSmooth)
 	PutINIValue(gv\OptionFile, "options", "invert mouse y", InvertMouse)
+	PutINIValue(gv\OptionFile, "options", "hold to aim", opt\HoldToAim)
+	PutINIValue(gv\OptionFile, "options", "hold to crouch", opt\HoldToCrouch)
 	PutINIValue(gv\OptionFile, "options", "bump mapping enabled", BumpEnabled)			
 	PutINIValue(gv\OptionFile, "options", "HUD enabled", HUDenabled)
 	PutINIValue(gv\OptionFile, "options", "screengamma", ScreenGamma)
@@ -6407,6 +6419,7 @@ Function ResetInput()
 	MouseHit2 = 0
 	MouseDown1 = 0
 	MouseUp1 = 0
+	MouseDown2 = 0
 	MouseHit(1)
 	MouseHit(2)
 	MouseDown(1)
