@@ -1360,12 +1360,6 @@ Function MainLoop()
 			If NTF_SmallHead Then UpdateSmallHeadMode()
 		EndIf
 		
-		BlurVolume = Min(CurveValue(0.0, BlurVolume, 20.0),0.95)
-		If BlurTimer > 0.0 Then
-			BlurVolume = Max(Min(0.95, BlurTimer / 1000.0), BlurVolume)
-			BlurTimer = Max(BlurTimer - FPSfactor, 0.0)
-		End If
-		
 		If MTF_CameraCheckTimer>0.0 And MTF_CameraCheckTimer<70*90
 			MTF_CameraCheckTimer=MTF_CameraCheckTimer+FPSfactor
 		ElseIf MTF_CameraCheckTimer>=70*90
@@ -1373,8 +1367,15 @@ Function MainLoop()
 		EndIf
 		
 		;[Block]
-		Local darkA# = 0.0
 		If (Not MenuOpen)  Then
+			BlurVolume = Min(CurveValue(0.0, BlurVolume, 20.0),0.95)
+			If BlurTimer > 0.0 Then
+				BlurVolume = Max(Min(0.95, BlurTimer / 1000.0), BlurVolume)
+				BlurTimer = Max(BlurTimer - FPSfactor, 0.0)
+			End If
+			
+			Local darkA# = 0.0
+			
 			If Sanity < 0 Then
 				If RestoreSanity Then Sanity = Min(Sanity + FPSfactor, 0.0)
 				If Sanity < (-200) Then 
@@ -1467,21 +1468,26 @@ Function MainLoop()
 				darkA = Max(darkA, Min(Abs(FallTimer / 400.0), 1.0))				
 			EndIf
 			
+			If LightFlash > 0 Then
+				ShowEntity Light
+				EntityAlpha(Light, Max(Min(LightFlash + Rnd(-0.2, 0.2), 1.0), 0.0))
+				LightFlash = Max(LightFlash - (FPSfactor / 70.0), 0)
+			Else
+				HideEntity Light
+				;EntityAlpha(Light, LightFlash)
+			EndIf
+			
 			If SelectedItem <> Null Then
 				If SelectedItem\itemtemplate\tempname = "navigator" Lor SelectedItem\itemtemplate\tempname = "nav" Then darkA = Max(darkA, 0.5)
 			End If
 			If SelectedScreen <> Null Then darkA = Max(darkA, 0.5)
 			
-			EntityAlpha(Dark, darkA)	
-		EndIf
-		
-		If LightFlash > 0 Then
-			ShowEntity Light
-			EntityAlpha(Light, Max(Min(LightFlash + Rnd(-0.2, 0.2), 1.0), 0.0))
-			LightFlash = Max(LightFlash - (FPSfactor / 70.0), 0)
-		Else
-			HideEntity Light
-			;EntityAlpha(Light, LightFlash)
+			If darkA <> 0.0 Then
+				ShowEntity(Dark)
+				EntityAlpha(Dark, darkA)
+			Else
+				HideEntity(Dark)
+			EndIf	
 		EndIf
 		;[End block]
 		
@@ -3380,6 +3386,7 @@ Function LoadEntities()
 	EntityOrder Dark, -1002
 	MoveEntity(Dark, 0, 0, 1.0)
 	EntityAlpha Dark, 0.0
+	HideEntity Dark
 	
 	LightTexture = CreateTextureUsingCacheSystem(1024, 1024, 1 + 2)
 	SetBuffer TextureBuffer(LightTexture)
@@ -3938,6 +3945,16 @@ Function InitLoadGame()
 	
 	BlinkTimer = BLINKFREQ
 	Stamina = 100
+	
+	Delete Each TempWayPoints
+	Delete Each TempScreens
+	
+	Local tfll.TempFluLight
+	For tfll = Each TempFluLight
+		Delete tfll\position
+		Delete tfll\rotation
+		Delete tfll
+	Next
 	
 	For rt.RoomTemplates = Each RoomTemplates
 		If rt\obj <> 0 Then FreeEntity(rt\obj) : rt\obj = 0
@@ -4716,7 +4733,7 @@ End Function
 ;--------------------------------------- random -------------------------------------------------------
 
 Function f2s$(n#, count%)
-	Return Left(n, Len(Int(n))+count+1)
+	Return Left(n, Len(Int(Str(n)))+count+1)
 End Function
 
 Function AnimateNPC(n.NPCs, start#, quit#, speed#, loop=True)
@@ -6520,10 +6537,4 @@ Function UpdateRichPresence()
 	BlitzcordRunCallbacks()
 End Function	
 ;~IDEal Editor Parameters:
-;~F#3#E#12#1B#21#27#2D#31#35#3B#43#49#62#6A#87#9A#A8#BC#127#1BA
-;~F#1C0#1DF#288#28C#297#325#344#38A#39F#40D#576#689#69A#6C6#6EE#6FD#725#74F#768#77B
-;~F#7AB#7C4#82E#8C0#8CA#8E9#92E#97D#985#9A0#B6C#D2B#DE1#F08#F3D#1057#1069#1085#108F#109C
-;~F#10C0#111B#1175#11CB#11DF#121E#1238#123C#125C#1264#128E#13A2#147B#14C1#14C8#14DB#14F5#1508#1536#1541
-;~F#1546#1560#156C#1587#15D9#15E7#15EF#15F7#162C#1635#1646#165D#166B#169C#16D8#16EA#1709#1718#172F#1733
-;~F#1737#173B#1768#1773#179F#17B3#17B8#17D6#180D#1825#1835#1845#1861#1893
 ;~C#Blitz3D

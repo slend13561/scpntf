@@ -165,6 +165,7 @@ Function UpdateEvent_Cont_914(e.Events)
 				ElseIf EntityDistanceSquared(e\room\Objects[i], Camera) > PowTwo(1.0)
 					GrabbedEntity = 0
 				End If
+				Exit
 			End If
 		Next
 		

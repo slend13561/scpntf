@@ -461,11 +461,7 @@ Function UpdateGUI()
 		ItemAmount = 0
 		For  n% = 0 To OtherSize - 1
 			isMouseOn% = False
-			If ScaledMouseX() > x And ScaledMouseX() < x + width Then
-				If ScaledMouseY() > y And ScaledMouseY() < y + height Then
-					isMouseOn = True
-				EndIf
-			EndIf
+			If MouseOn(x, y, width, height) Then isMouseOn = True
 			
 			If isMouseOn Then
 				MouseSlot = n
@@ -620,11 +616,7 @@ Function UpdateGUI()
 		ItemAmount = 0
 		For  n% = 0 To MaxItemAmount - 1
 			isMouseOn% = False
-			If ScaledMouseX() > x And ScaledMouseX() < x + width Then
-				If ScaledMouseY() > y And ScaledMouseY() < y + height Then
-					isMouseOn = True
-				End If
-			EndIf
+			If MouseOn(x, y, width, height) Then isMouseOn = True
 			
 			If isMouseOn Then
 				MouseSlot = n
@@ -668,9 +660,10 @@ Function UpdateGUI()
 			Else
 				If isMouseOn And MouseHit1 Then
 					For z% = 0 To MaxItemAmount - 1
-						If Inventory[z] = SelectedItem Then Inventory[z] = Null
+						If Inventory[z] = SelectedItem Then Inventory[z] = Null : Exit
 					Next
 					Inventory[n] = SelectedItem
+					SelectedItem = Null
 				End If
 				
 			EndIf					
@@ -741,7 +734,7 @@ Function UpdateGUI()
 				Else
 					If Inventory[MouseSlot] = Null Then
 						For z% = 0 To MaxItemAmount - 1
-							If Inventory[z] = SelectedItem Then Inventory[z] = Null
+							If Inventory[z] = SelectedItem Then Inventory[z] = Null : Exit
 						Next
 						Inventory[MouseSlot] = SelectedItem
 						SelectedItem = Null
@@ -765,6 +758,7 @@ Function UpdateGUI()
 														If Inventory[ri] = SelectedItem Then
 															Inventory[ri] = Null
 															PlaySound_Strict(PickSFX[SelectedItem\itemtemplate\sound])
+															Exit
 														EndIf
 													Next
 													added = SelectedItem
@@ -2155,8 +2149,6 @@ Function UpdateGUI()
 			EndIf
 			
 			If MouseHit2 Then
-				EntityAlpha Dark, 0.0
-				
 				IN$ = SelectedItem\itemtemplate\tempname
 				;If IN$ = "paper" Lor IN$ = "scp1025" Lor IN$ = "badge" Lor IN$ = "oldpaper" Then
 				If IN$ = "scp1025" Then
@@ -2607,11 +2599,7 @@ Function DrawGUI()
 		;ItemAmount = 0
 		For  n% = 0 To OtherSize - 1
 			isMouseOn% = False
-			If ScaledMouseX() > x And ScaledMouseX() < x + width Then
-				If ScaledMouseY() > y And ScaledMouseY() < y + height Then
-					isMouseOn = True
-				EndIf
-			EndIf
+			If MouseOn(x, y, width, height) Then isMouseOn = True
 			
 			If isMouseOn Then
 				MouseSlot = n
@@ -2674,11 +2662,7 @@ Function DrawGUI()
 		;ItemAmount = 0
 		For  n% = 0 To MaxItemAmount - 1
 			isMouseOn% = False
-			If ScaledMouseX() > x And ScaledMouseX() < x + width Then
-				If ScaledMouseY() > y And ScaledMouseY() < y + height Then
-					isMouseOn = True
-				EndIf
-			EndIf
+			If MouseOn(x, y, width, height) Then isMouseOn = True
 			
 			If Inventory[n] <> Null Then
 				Color 200, 200, 200
@@ -4550,5 +4534,4 @@ Function MouseOn%(x%, y%, width%, height%)
 End Function
 
 ;~IDEal Editor Parameters:
-;~F#D8C#DAC#F3D#F82
 ;~C#Blitz3D
